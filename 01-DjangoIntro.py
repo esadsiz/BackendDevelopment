@@ -33,7 +33,6 @@
 # view'lerimizi burada olusturuyoruz.
 
 # Bir http istegi gerceklestirecegimiz icin;
-from xml.etree.ElementInclude import include
 from django.http import HttpResponse
 def anasayfa(istek):
     return HttpResponse("Merhaba Enes")
