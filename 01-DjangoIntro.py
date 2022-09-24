@@ -84,7 +84,7 @@ urlpatterns = [
 ####################################################################################################
 # Burasi ilkapp klasörü icindeki urls.py bölgesi
 
-from django.urls import path
+from django.urls import path, include
 from firstdjango.ilkapplication1.views import anasayfa
 
 urlpatterns = [
