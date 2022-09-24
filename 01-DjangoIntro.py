@@ -88,7 +88,8 @@ from django.urls import path, include
 from firstdjango.ilkapplication1.views import anasayfa
 
 urlpatterns = [
-        path("yönlendirme", yönlendirilmisview) # girilen path .../yönlendirme ise yönlendirilmisview viewini görürüz.
+        path("", yönlendirilmisview) # girilen path .../yönlendirme ise yönlendirilmisview viewini görürüz.
+        path("/icicesayfa", icicesayfaview) # girilen path .../yönlendirme/icicesayfa ise icicesayfaview viewini görürüz.
         # tirnak icinde artik yönlendirme yazmasi sart da degil. yine de .../yönlendirme pathi icinde yönlendirilmisview pathini görürüz.
 
 ]
