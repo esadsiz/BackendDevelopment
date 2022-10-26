@@ -95,8 +95,6 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 ####################################################################################################
 # Burasi relations app'ine ait models.py bölgesi
 
-# media/ ile ilgili gelen istekleri, MEDIA_URL'deki klasörden cagir.
-
 from django.db import models
 
 class Yazar(models.Model):
@@ -124,8 +122,6 @@ class Kitap(models.Model):
 #
 ####################################################################################################
 # Burasi relations app'ine ait models.py bölgesi
-
-# media/ ile ilgili gelen istekleri, MEDIA_URL'deki klasörden cagir.
 
 from django.db import models
 
@@ -155,8 +151,6 @@ class Yazar(models.Model):
 #
 ####################################################################################################
 # Burasi relations app'ine ait models.py bölgesi
-
-# media/ ile ilgili gelen istekleri, MEDIA_URL'deki klasörden cagir.
 
 from django.db import models
 
