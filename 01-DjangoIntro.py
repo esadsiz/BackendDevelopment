@@ -5,7 +5,7 @@
 # python -m venv ortamismi
 
 # Olusturulan sanal ortami aktif hale getirme
-# source ./ortamismi/Scripts/activate
+# (source) .\ortamismi\Scripts\activate
 
 # Olusturulan sanal ortami deaktif hale getirme
 # deactivate
@@ -18,14 +18,15 @@
 
 # django'da proje olusturma
 # django-admin startproject projeismi
-
-# sonradan olusturulan her app'in settings.py icindeki INSTALLED_APPS=[]'e "appismi" seklinde eklenmesi gerekir.
+# django-admin startproject projeismi . (eger ic ice cift klasör olusturmasini istemiyorsak)
 
 # olusturulan projeyi calistirma
 # python manage.py runserver
 
 # proje icinde app olusturma
-# python manage.py startapp ilkapplication
+# python manage.py startapp appismi
+
+# sonradan olusturulan her app'in, settings.py icindeki INSTALLED_APPS=[]'e "appismi" seklinde eklenmesi gerekir.
 
 ####################################################################################################
 # Burasi views.py bölgesi
@@ -34,9 +35,9 @@
 
 # Bir http istegi gerceklestirecegimiz icin;
 from django.http import HttpResponse
-def anasayfa(istek):
-    return HttpResponse("Merhaba Enes")
 
+def anasayfa(istek):
+    return HttpResponse("<h1>Merhaba Enes</h1>")
 # Bu viewi urls.py icinde ilgili yere göndermeliyiz.
 ####################################################################################################
 #
@@ -46,7 +47,7 @@ def anasayfa(istek):
 #
 ####################################################################################################
 # Burasi settings.py bölgesi
-# Olusturulan app'i ISNTALLED_APPS'e girmemiz lazim.
+# Olusturulan app'i INSTALLED_APPS'e girmemiz lazim.
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -55,9 +56,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-     'ilkapp' # olusturulan app klasörünün ismi
+     'appismi' # olusturulan app klasörünün ismi
 ]
-
 ####################################################################################################
 #
 #
@@ -68,12 +68,12 @@ INSTALLED_APPS = [
 # Burasi urls.py bölgesi
 
 from django.urls import path
-from firstdjango.ilkapplication1.views import anasayfa
+from projeklasörü.appismi.views import anasayfa
 
 urlpatterns = [
     path("", anasayfa) #tirnak ici bossa anasayfa'ya yönlendir.
     path("ilksayfa", adminpaneli ) #.../ilksayfa pathine girdigimizde adminpaneli view'ini görürürüz.
-    path("yönlendirme",include(ilkapp.urls)) # girilen path .../yönlendirme ise ilkapp klasöründeki urls'e git (appler urls icermez, bunu kendimiz olustururuz.)
+    path("yönlendirme",include(appismi.urls)) # girilen path .../yönlendirme ise ilkapp klasöründeki urls'e git (appler urls dosyasi icermez, kendimiz olustururuz.)
 ]
 ####################################################################################################
 #
@@ -82,16 +82,15 @@ urlpatterns = [
 #
 #
 ####################################################################################################
-# Burasi ilkapp klasörü icindeki urls.py bölgesi
+# Burasi appismi klasörü icindeki urls.py bölgesi
 
 from django.urls import path, include
-from firstdjango.ilkapplication1.views import anasayfa
+from projeklasörü.appismi.views import anasayfa
 
 urlpatterns = [
         path("", yönlendirilmisview) # girilen path .../yönlendirme ise yönlendirilmisview viewini görürüz.
         path("/icicesayfa", icicesayfaview) # girilen path .../yönlendirme/icicesayfa ise icicesayfaview viewini görürüz.
         # tirnak icinde artik yönlendirme yazmasi sart da degil. yine de .../yönlendirme pathi icinde yönlendirilmisview pathini görürüz.
-
 ]
 ####################################################################################################
 #
@@ -104,5 +103,3 @@ urlpatterns = [
 # terminalde pip freeze > requierements.txt yazarsak, projedeki yüklü seylerin bilgisini requirements.txt isminde bir dosya olusturarak onun icine atar.
 
 ####################################################################################################
-
-
