@@ -169,3 +169,22 @@ class Okuyucu(models.Model):
 # Daha sonra Okuyucu olusturulmak istendiginde, altta bize secenekler sunuldugunu görürüz, Okudugu kitaplar? secenekleri.
 # Kurulu iliski many to many oldugu icin bir okuyucuya birden fazla kitap atanabilir, ayni sekilde bir kitap da birden fazla okuyucuya atanabilir.
 ####################################################################################################
+
+# UFAK BIR NOT #
+# PostgreSQL'i Django'ya baglamak icin;
+# pgAdmin üzerinden bir database olusturulur. adi djangodb olsun.
+# daha sonra projenin settings.py ayarlarinda; DATABASES = {} kismi yoruma alinir, yani iptal edilir.
+# yerine;
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'djangodb',
+        'USER': 'dbuser',
+        'PASSWORD' : 'dbpass',
+        'HOST': 'localhost',
+        'PORT' '5432'
+    }
+} # eklenir.
+# terminale pip install psycopg2 ya da pip install psycopg2-binary yazilarak ilgili modüller yüklenir.
+# python manage.py makemigrations ve python manage.py migrate ile de, tablolarimizin PostgreSQL arayüzünde, ilgili veritabaninin Tables kismina yüklendigini görürüz.
+# sistemimiz artik PostgreSQL'e bagli.
