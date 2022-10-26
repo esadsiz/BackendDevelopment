@@ -1,3 +1,7 @@
+# UFAK BIR NOT #
+# Repo'dan cekilmis bir projenin environmentini yüklemek icin;
+pip install -r requirements.txt
+
 ####################################################################################################
 # Burasi models.py bölgesi
 
@@ -12,16 +16,17 @@ class Ögrenci(models.Model):
     ("DE", "Almanya")
     ]
 
-    isim = models.CharField(max_length=30) # isim isimli sütunum karakter alsin, ve maksimum 30 karakter olsun.
-    numara = models.IntegerField() # numara isimli sütunum rakam, numara, sayi alsin.
+    isim = models.CharField("Adi", max_length=30) # isim isimli sütunum karakter alsin, ve maksimum 30 karakter olsun.
+    numara = models.IntegerField("Numarasi") # numara isimli sütunum rakam, numara, sayi alsin.
     ülke = models.CharField(max_length=2, choices=ULKELER, default="TR") # ögrencinin ülkesini ULKELER verisinden sectir.
-    aciklama = models.TextField(null=True blank=True) # aciklama isimli sütunum uzun bir text alani alsin. null=True ya da blank=True bos birakilabilir demek.
-    kayittarihi = models.DateField("Kayit Tarihi" auto_now_add=True) # kayittarihi isimli sütun otomatik tarih atar. Tablo üzerinde sütun basligi "Kayit Tarihi seklinde görünür."
-    songiriszamaani = models.DateTimeField(auto_now=True) # DateTimeField hem zamani hem tarihi atar.   # auto_now ile auto_now_add arasindaki fark, auto_now'in otomatik degisebilir olmasi.
+    aciklama = models.TextField(null=True, blank=True) # aciklama isimli sütunum uzun bir text alani alsin. null=True ya da blank=True bos birakilabilir demek.
+    kayittarihi = models.DateField("Kayit Tarihi", auto_now_add=True) # kayittarihi isimli sütun otomatik tarih atar. Tablo üzerinde sütun basligi "Kayit Tarihi seklinde görünür."
+    songiriszamaani = models.DateTimeField(auto_now=True) # DateTimeField hem zamani hem tarihi atar. auto_now ile auto_now_add arasindaki fark, auto_now'in otomatik degisebilir olmasi.
     aktifmi = models.BooleanField(default=True) # BooleanField true ya da false alir.
     profilresmi = models.ImageField(upload_to="media/") # upload edilen resim media klasörüne yüklensin.
     # resim islemlerini kontrol edebilecegimiz metodu yüklemek icin terminale pip install pillow yazariz.
     # daha sonra settings.py'a gider, MEDIA_URL="media/" satiri ekleyerek bu media klasörünü tanitiriz.
+    # artik admin paneli üzerinden bir resim yükledigimizde, proje dosyasi icinde otomatik olarak media klasörü olusur ve resim bu klasörün icine kaydedilir.
 
     def __str__(self):
         return (f"{self.numara} - {self.isim}")
@@ -35,10 +40,11 @@ class Ögrenci(models.Model):
  
     # olusturdugumuz bu tablodan pythonun haberi olmasi icin terminale sunu yazariz. yeni bir veri girisi yaptiktan sonra degisiklikleri yakalamak icin de kullanilir.
     # python manage.py makemigrations
+    
     # bu komutla da django database'e gidip bu tabloyu olusturur. yeni bir veri girisi yaptiktan sonra veritabanini güncellemek icin de kullanilir.
     # python manage.py migrate
 
-    # simdi bir adminpaneli ayaga kaldiralim.
+    # simdi bir admin paneli ayaga kaldiralim.
     # python manage.py createsuperuser
     # daha sonra email vs gibi bizden istenen bilgileri gireriz.
 
@@ -47,7 +53,6 @@ class Ögrenci(models.Model):
     # bu /admin pathi, urls.py icinde otomatik tanimlidir.
 
 # olusturdugumuz tabloyu admin paneli icerisine yüklemek icin admin.py icinde cagiririz.
-
 ####################################################################################################
 #
 #
@@ -60,7 +65,6 @@ class Ögrenci(models.Model):
 from .models import Ögrenci
 
 admin.site.register(Ögrenci)
-
 ####################################################################################################
 #
 #
@@ -77,7 +81,6 @@ from django.conf.urls.static import static
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # burada path kullanilmaz, path dinamik adreslerde kullanilir, resim, js, video gibi seyler statiktir.
-
 ####################################################################################################
 #
 #
@@ -97,8 +100,7 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 from django.db import models
 
 class Yazar(models.Model):
-    yazarismi = models.CharField(max_length=30) 
-
+    yazarismi = models.CharField(max_length=30)
 
 class Kitap(models.Model):
     kitapismi = models.CharField(max_length=30)
@@ -109,7 +111,6 @@ class Kitap(models.Model):
 # Admin paneline gidilir. Önce öregin 3 adet Yazar olusturulur.
 # Daha sonra Kitap olusturulmak istendiginde, altta bize bir secenek sunuldugunu görürüz, Yazari kim? secenegi.
 # Kurulu iliski one to one oldugu icin bir kitaba bir yazar bir kez atanabilir.
-    
 ####################################################################################################
 #
 #
@@ -138,10 +139,9 @@ class Yazar(models.Model):
     # yazdigikitaplar özelliklerini Kitap'tan alir.
     # on_delete=models.CASCADE ise Kitap tablosundaki herhangi bir kitap silindiginde ona ait yazari da otomatik sil demek. on_delete metodlarina kendin bakabilirsin.
 
-# Admin paneline gidilir. Önce öregin 3 adet Kitap olusturulur.
+# Admin paneline gidilir. Önce örnegin 3 adet Kitap olusturulur.
 # Daha sonra Yazar olusturulmak istendiginde, altta bize secenekler sunuldugunu görürüz, Yazdigi kitaplar? secenekleri.
-# Kurulu iliski one to many oldugu icin bir yazara birden fazla kitap atanabilir.
-    
+# Kurulu iliski one to many oldugu icin bir yazara birden fazla kitap atanabilir.  
 ####################################################################################################
 #
 #
@@ -174,5 +174,4 @@ class Okuyucu(models.Model):
 # Admin paneline gidilir. Önce öregin 3 adet Kitap olusturulur.
 # Daha sonra Okuyucu olusturulmak istendiginde, altta bize secenekler sunuldugunu görürüz, Okudugu kitaplar? secenekleri.
 # Kurulu iliski many to many oldugu icin bir okuyucuya birden fazla kitap atanabilir, ayni sekilde bir kitap da birden fazla okuyucuya atanabilir.
-    
 ####################################################################################################
