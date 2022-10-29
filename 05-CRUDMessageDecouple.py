@@ -18,10 +18,10 @@
     />
 
     {% comment %}
-    <link rel="stylesheet" href=" {% static 'fscohort/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href=" {% static 'ogrenciapp/css/bootstrap.min.css' %}" />
     {% endcomment %}
 
-    <link rel="stylesheet" href=" {% static 'fscohort/css/style.css' %}  " />
+    <link rel="stylesheet" href=" {% static 'ogrenciapp/css/style.css' %}  " />
 
     <title>Document</title>
   </head>
@@ -48,7 +48,7 @@
       integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
       crossorigin="anonymous"
     ></script>
-    <script src="{% static 'fscohort/js/timeout.js' %}"></script>
+    <script src="{% static 'ogrenciapp/js/timeout.js' %}"></script>
   </body>
 </html>
 ####################################################################################################
@@ -60,10 +60,11 @@
 ####################################################################################################
 # Burasi ogrenciapp/templates/ogrenciapp/index.html bölgesi
 
-{% extends "fscohort/base.html" %} {% block container %}
+{% extends "ogrenciapp/base.html" %}
+
+{% block container %}
 
 <h1>Home Page</h1>
-
 <h3>Student App</h3>
 
 {% endblock container %}
@@ -75,14 +76,13 @@
 #####################################################################################################
 # Burasi ögrenciapp/templates/ögrenciapp/ogrenci_listesi.html bölgesi
 
-{% extends "fscohort/base.html" %}
+{% extends "ogrenciapp/base.html" %}
 
 {% block container %}
-    <!-- {{student}} -->
     <ul>
-        {% for student in students%}
-        <a href="{% url 'detail' student.id  %}">
-        <li>{{ student.number }} - {{student.first_name}} {{student.last_name}}</li>
+        {% for eleman in ogrenciler %}
+        <a href="{% url 'detail' student.id %}">
+        <li>{{ eleman.numara}} - {{eleman.isim}}</li>
         <a>
         {%endfor%}
     </ul>
@@ -95,7 +95,7 @@
 ####################################################################################################
 # Burasi ögrenciapp/templates/ögrenciapp/ogrenci_ekle.html bölgesi
 
-{% extends 'fscohort/base.html' %}
+{% extends 'ogrenciapp/base.html' %}
 
 {% block container %}
     <h2>Add Student</h2>
@@ -113,7 +113,7 @@
 ####################################################################################################
 # Burasi ögrenciapp/templates/ögrenciapp/ogrenci_guncelle.html bölgesi
 
-{% extends 'fscohort/base.html' %}
+{% extends 'ogrenciapp/base.html' %}
 
 {% block container %}
     <h2>Update Student</h2>
@@ -131,7 +131,7 @@
 #####################################################################################################
 # Burasi ögrenciapp/templates/ögrenciapp/ogrenci_sil.html bölgesi
 
-{% extends 'fscohort/base.html' %}
+{% extends 'ogrenciapp/base.html' %}
 
 {% block container %}
     <form action="" method="POST">
@@ -152,7 +152,7 @@
 ####################################################################################################
 # Burasi ogrenciapp/templates/ogrenciapp/ogrenci_detay.html bölgesi
 
-{% extends 'fscohort/base.html' %}
+{% extends 'ogrenciapp/base.html' %}
 
 {% block container %}
     {{student.number}} - {{student.first_name}} {{student.last_name}}
@@ -183,7 +183,7 @@ class OgrenciConfig(AppConfig):
 
 from django.db import models
 
-class ÖgrenciModeli(models.Model):
+class OgrenciModeli(models.Model):
     isim = models.CharField(max_length=30)
     numara = models.IntegerField(null=True)
 
@@ -198,9 +198,9 @@ class ÖgrenciModeli(models.Model):
 ####################################################################################################
 # Burasi ögrenciapp/admin.py bölgesi
 
-from .models import ÖgrenciModeli
+from .models import OgrenciModeli
 
-admin.site.register(ÖgrenciModeli)
+admin.site.register(OgrenciModeli)
 ####################################################################################################
 #
 #
@@ -225,7 +225,7 @@ class StudentForm(forms.ModelForm):
 #
 #
 ####################################################################################################
-# Burasi ögrenciapp/views.py bölgesi
+# Burasi ogrenciapp/views.py bölgesi
 
 from django.shortcuts import render,redirect
 from .models import Ogrenci
@@ -235,9 +235,10 @@ def index(request):
     return render(request,'ogrenciapp/index.html')
 
 def ogrenci_listesi(request):
-    students=Ogrenci.objects.all()
+    butunOgrenciler=Ogrenci.objects.all()
+    # .object.all() Ogrenci modeli ile olusturulmus bütün objeleri ceker.
     bunlariGönder = {
-        'students':students
+        'ogrenciler': butunOgrenciler
     }
     return render(request, 'ogrenciapp/ogrenci_listesi.html', bunlariGönder)
 
@@ -248,7 +249,7 @@ def ogrenci_ekle(request):
         print(form)
         if form.is_valid():
             form.save()
-            return redirect("list")
+            return redirect("listePathi")
     bunlariGönder = {
       'form':form  
     }
@@ -261,7 +262,7 @@ def ogrenci_guncelle(request,id ):
         form=OgrenciFormu(request.POST,instance=student)
         if form.is_valid():
             form.save()
-            return redirect('list')
+            return redirect('listePathi')
     
     bunlariGönder = {
         'form':form
@@ -272,7 +273,7 @@ def ogrenci_sil(request,id):
     student=Ogrenci.objects.get(id=id)
     if request.method=='POST':
         student.delete()
-        return redirect("list")
+        return redirect("listePathi")
         
     bunlariGönder = {
             'student':student
