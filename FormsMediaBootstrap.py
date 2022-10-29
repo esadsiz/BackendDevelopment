@@ -25,35 +25,6 @@ SECRET_KEY=config("SECRET_KEY") # bu, .env'de SECRET_KEY'i bul, bana getir demek
 #
 #
 ####################################################################################################
-# Burasi ögrenciapp/models.py bölgesi
-
-from django.db import models
-
-class Ögrenci(models.Model):
-    isim = models.CharField(max_length=30)
-    numara = models.IntegerField(null=True)
-
-    def __str__(self):
-        return f"{self.isim}"
-####################################################################################################
-#
-#
-#
-#
-#
-####################################################################################################
-# Burasi ögrenciapp/admin.py bölgesi
-
-from .models import Ögrenci
-
-admin.site.register(Ögrenci)
-####################################################################################################
-#
-#
-#
-#
-#
-####################################################################################################
 # Burasi ögrenciapp/templates/ögrenciapp/base.html bölgesi
 
 # Burada genelde bizim navbarlarimiz footerlarimiz bulunur.
@@ -104,9 +75,11 @@ admin.site.register(Ögrenci)
 
 {% block container %}
 
-<form action="" method="post" enctype="multipart/form-data">
+<form action="" method="post">
     {% csrf_token %} {{ form.as_p }}
-    <input type="submit" value="OK" />
+    # csrf_token, hackerlara karsi bir önlem alir.
+    # form.as_p, form bilesenlerini alt alta siralamaya yarar.
+    <input type="submit" value="GÖNDER" />
  </form>
 
 {% endblock container %}
@@ -117,33 +90,75 @@ admin.site.register(Ögrenci)
 #
 #
 ####################################################################################################
+# Burasi ögrenciapp/models.py bölgesi
+
+from django.db import models
+
+class ÖgrenciModeli(models.Model):
+    isim = models.CharField(max_length=30)
+    numara = models.IntegerField(null=True)
+
+    def __str__(self):
+        return f"{self.isim}"
+####################################################################################################
+#
+#
+#
+#
+#
+####################################################################################################
+# Burasi ögrenciapp/admin.py bölgesi
+
+from .models import ÖgrenciModeli
+
+admin.site.register(ÖgrenciModeli)
+####################################################################################################
+#
+#
+#
+#
+#
+####################################################################################################
+# Burasi ögrenciapp/forms.py bölgesi
+
+from django import forms
+from .models import ÖgrenciModeli
+
+class ÖgrenciFormu(forms.ModelForm):
+    # models'deki Ögrenci modeline git, oradaki isim ve numarayi al.
+    class Meta:
+        model = ÖgrenciModeli
+        fields = ["isim", "numara"]
+        labels = {"isim": "Ögrenci Adi Soyadi", "numara": "Ögrenci Numarasi"}
+####################################################################################################
+#
+#
+#
+#
+#
+####################################################################################################
 # Burasi ögrenciapp/views.py bölgesi
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+
+from .forms import ÖgrenciFormu
 
 def index(request):
     return render(request, 'ögrenciapp/index.html')
 
 def ögrenci_sayfasi(request):
-    return render(request,'ögrenciapp/student.html')
-####################################################################################################
-#
-#
-#
-#
-#
-####################################################################################################
-# Burasi main/urls.py bölgesi
+    form = ÖgrenciFormu()
+    if request.method == "POST":
+        form = ÖgrenciFormu(request.POST, request.FILES)
+        if form.is_valid():
+            form.save() # verileri otomatik olarak veri tabanina kaydeder.
+            return redirect("index")
 
-from django.contrib import admin
-from django.urls import path, include
-from ögrenci.views import index
+    context = {
+        'form': form
+    }
 
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', index, name='index'),
-    path('ögrenci/', include('ögrenci.urls')),
-]
+    return render(request, 'ögrenci/ögrenci.html', context)
 ####################################################################################################
 #
 #
@@ -166,14 +181,15 @@ urlpatterns = [
 #
 #
 ####################################################################################################
-# Burasi ögrenciapp/forms.py bölgesi
+# Burasi main/urls.py bölgesi
 
-from django import forms
-from .models import Ögrenci
+from django.contrib import admin
+from django.urls import path, include
+from ögrenciapp.views import index
 
-class ÖgrenciForm(forms.ModelForm):
-    class Meta:
-        model = Student
-        fields = ["isim", "numara"]
-        labels = {"first_name": "Name"}
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', index, name='index'),
+    path('ögrenci/', include('ögrenciapp.urls')),
+]
 ####################################################################################################
