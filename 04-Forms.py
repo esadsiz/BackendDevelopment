@@ -76,9 +76,9 @@ SECRET_KEY=config("SECRET_KEY") # bu, .env'de SECRET_KEY'i bul, bana getir demek
 {% block container %}
 
 <form action="" method="post">
-    {% csrf_token %} {{ form.as_p }}
+    {% csrf_token %} {{ formuBastir.as_p }}
     # csrf_token, hackerlara karsi bir önlem alir.
-    # form.as_p, form bilesenlerini alt alta siralamaya yarar.
+    # .as_p, form bilesenlerini alt alta siralamaya yarar.
     <input type="submit" value="GÖNDER" />
  </form>
 
@@ -146,16 +146,16 @@ def index(request):
     return render(request, 'ögrenciapp/index.html')
 
 def ögrenci_sayfasi(request):
-    form = ÖgrenciFormu()
+    formuAl = ÖgrenciFormu()
     if request.method == "POST":
-        form = ÖgrenciFormu(request.POST, request.FILES)
-        if form.is_valid():
-            form.save() # verileri otomatik olarak veri tabanina kaydeder.
+        formuAl = ÖgrenciFormu(request.POST, request.FILES)
+        if formuAl.is_valid():
+            formuAl.save() # verileri otomatik olarak veri tabanina kaydeder.
             return redirect("indexPathi")
-    context = {
-        'form': form
+    bunlariGönder = {
+        'formuBastir': formuAl
     }
-    return render(request, 'ögrenci/ögrenci.html', context)
+    return render(request, 'ögrenci/ögrenci.html', bunlariGönder)
 ####################################################################################################
 #
 #
