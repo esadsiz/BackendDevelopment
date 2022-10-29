@@ -151,7 +151,7 @@ def ögrenci_sayfasi(request):
         form = ÖgrenciFormu(request.POST, request.FILES)
         if form.is_valid():
             form.save() # verileri otomatik olarak veri tabanina kaydeder.
-            return redirect("index")
+            return redirect("indexPathi")
     context = {
         'form': form
     }
@@ -169,7 +169,7 @@ from django.urls import path
 from .views import ögrenci_sayfasi
 
 urlpatterns = [
-    path('', ögrenci_sayfasi),
+    path('', ögrenci_sayfasi, name='ögrenciPathi'),
 ]
 ####################################################################################################
 #
@@ -186,7 +186,7 @@ from ögrenciapp.views import index
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', index, name='index'),
+    path('', index, name='indexPathi'),
     path('ögrenci/', include('ögrenciapp.urls')),
 ]
 ####################################################################################################
