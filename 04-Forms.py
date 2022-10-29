@@ -140,7 +140,6 @@ class ÖgrenciFormu(forms.ModelForm):
 # Burasi ögrenciapp/views.py bölgesi
 
 from django.shortcuts import render, redirect
-
 from .forms import ÖgrenciFormu
 
 def index(request):
@@ -153,11 +152,9 @@ def ögrenci_sayfasi(request):
         if form.is_valid():
             form.save() # verileri otomatik olarak veri tabanina kaydeder.
             return redirect("index")
-
     context = {
         'form': form
     }
-
     return render(request, 'ögrenci/ögrenci.html', context)
 ####################################################################################################
 #
