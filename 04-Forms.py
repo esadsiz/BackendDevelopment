@@ -124,7 +124,7 @@ admin.site.register(ÖgrenciModeli)
 from django import forms
 from .models import ÖgrenciModeli
 
-class ÖgrenciFormu(forms.ModelForm):
+class OgrenciFormu(forms.ModelForm):
     # models'deki Ögrenci modeline git, oradaki isim ve numarayi al.
     class Meta:
         model = ÖgrenciModeli
@@ -140,15 +140,15 @@ class ÖgrenciFormu(forms.ModelForm):
 # Burasi ögrenciapp/views.py bölgesi
 
 from django.shortcuts import render, redirect
-from .forms import ÖgrenciFormu
+from .forms import OgrenciFormu
 
 def index(request):
     return render(request, 'ögrenciapp/index.html')
 
-def ögrenci_sayfasi(request):
-    formuAl = ÖgrenciFormu()
+def ogrenci_sayfasi(request):
+    formuAl = OgrenciFormu()
     if request.method == "POST":
-        formuAl = ÖgrenciFormu(request.POST, request.FILES)
+        formuAl = OgrenciFormu(request.POST, request.FILES)
         if formuAl.is_valid():
             formuAl.save() # verileri otomatik olarak veri tabanina kaydeder.
             return redirect("indexPathi")
@@ -166,10 +166,10 @@ def ögrenci_sayfasi(request):
 # Burasi ögrenciapp/urls.py bölgesi
 
 from django.urls import path
-from .views import ögrenci_sayfasi
+from .views import ogrenci_sayfasi
 
 urlpatterns = [
-    path('', ögrenci_sayfasi, name='ögrenciPathi'),
+    path('', ogrenci_sayfasi, name='ögrenciPathi'),
 ]
 ####################################################################################################
 #
