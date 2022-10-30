@@ -9,46 +9,16 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <link
-      rel="stylesheet"
-      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
-      integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ"
-      crossorigin="anonymous"
-    />
-
-    {% comment %}
-    <link rel="stylesheet" href=" {% static 'ogrenciapp/css/bootstrap.min.css' %}" />
-    {% endcomment %}
-
-    <link rel="stylesheet" href=" {% static 'ogrenciapp/css/style.css' %}  " />
-
+    <link rel="stylesheet" href=" {% static 'ogrenciapp/style.css' %}  " />
     <title>Document</title>
   </head>
-
   <body>
-    <h1> hello clarusway </h1>
+    <h1> Merhaba esadsiz </h1>
     {% comment %} {% include "users/navbar.html" %} {% endcomment %}
     <div style="margin-top: 100px; margin-bottom: 100px" class="container">
-
       {% block container %}{% endblock container %}
     </div>
-    <script
-      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-      crossorigin="anonymous"
-    ></script>
-    <script src="{% static 'ogrenciapp/js/timeout.js' %}"></script>
+    <script src="{% static 'ogrenciapp/zamanlayici.js' %}"></script>
   </body>
 </html>
 ####################################################################################################
@@ -80,8 +50,8 @@
 
 {% block container %}
     <ul>
-        {% for eleman in ogrenciler %}
-        <a href="{% url 'detail' student.id %}">
+        {% for eleman in ogrencileriBastir %}
+        <a href="{% url 'detail' eleman.id %}">
         <li>{{ eleman.numara}} - {{eleman.isim}}</li>
         <a>
         {%endfor%}
@@ -98,11 +68,11 @@
 {% extends 'ogrenciapp/base.html' %}
 
 {% block container %}
-    <h2>Add Student</h2>
+    <h2>Ögrenci Ekle</h2>
     <form action="" method="POST">
         {% csrf_token %}                   
-        {{form.as_p}}						   
-        <input type="submit" value="add">
+        {{formuBastir.as_p}}						   
+        <input type="submit" value="Ekle">
     </form>
 {% endblock container %}
 ####################################################################################################
@@ -116,11 +86,11 @@
 {% extends 'ogrenciapp/base.html' %}
 
 {% block container %}
-    <h2>Update Student</h2>
+    <h2>Ögrenci Güncelle</h2>
     <form action="" method="POST">
         {% csrf_token %}                   
-        {{form.as_p}}						   
-        <input type="submit" value="update">
+        {{formuBastir.as_p}}						   
+        <input type="submit" value="Güncelle">
     </form>
 {% endblock container %}
 ####################################################################################################
@@ -135,12 +105,13 @@
 
 {% block container %}
     <form action="" method="POST">
-        <p>Are You Sure! {{ student }}</p>
+        <p> Emin misiniz? {{ ogrenciyiBastir }}</p>
         {% csrf_token %}
-        <input type="submit" value="Yes">
+        <input type="submit" value="Evet">
     </form>
-    <a href="{% url 'list' %}">
-        <button>No</button>
+    <a href="{% url 'listePathi' %}">
+    # butona basildiginda bizi listePath'ine yönlendirir.
+        <button>Hayir</button>
     </a>
 {% endblock container %}
 ####################################################################################################
@@ -155,23 +126,12 @@
 {% extends 'ogrenciapp/base.html' %}
 
 {% block container %}
-    {{student.number}} - {{student.first_name}} {{student.last_name}}
+    {{ogrenciyiBastir.numara}} - {{ogrenciyiBastir.isim}}
     <br>
-    <a href="{% url 'update' student.id %}"><button>Update</button></a>
-    <a href="{% url 'delete' student.id %}"><button>Delete</button></a>
+    <a href="{% url 'guncellePathi' ogrenciyiBastir.detayId %}"><button>Güncelle</button></a>
+    <a href="{% url 'silPathi' ogrenciyiBastir.detayId %}"><button>Sil</button></a>
+    # Güncelle butonu guncellePathi'ne, Sil butonu silPathi'ne yönlendirir.
 {% endblock container %}
-####################################################################################################
-#
-#
-#
-#
-#
-####################################################################################################
-from django.apps import AppConfig
-
-class OgrenciConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'ogrenciapp'
 ####################################################################################################
 #
 #
@@ -237,55 +197,56 @@ def index(request):
 def ogrenci_listesi(request):
     butunOgrenciler=Ogrenci.objects.all()
     # .object.all() Ogrenci modeli ile olusturulmus bütün objeleri ceker.
-    bunlariGönder = {
-        'ogrenciler': butunOgrenciler
+    bunlariGonder = {
+        'ogrencileriBastir': butunOgrenciler
     }
-    return render(request, 'ogrenciapp/ogrenci_listesi.html', bunlariGönder)
+    return render(request, 'ogrenciapp/ogrenci_listesi.html', bunlariGonder)
 
 def ogrenci_ekle(request):
-    form=OgrenciFormu()
+    formuAl=OgrenciFormu()
     if request.method=='POST':
-        form=OgrenciFormu(request.POST)
-        print(form)
-        if form.is_valid():
-            form.save()
+        formuAl=OgrenciFormu(request.POST)
+        print(formuAl)
+        if formuAl.is_valid():
+            formuAl.save()
             return redirect("listePathi")
-    bunlariGönder = {
-      'form':form  
+    bunlariGonder = {
+      'formuBastir':formuAl  
     }
-    return render(request,'ogrenciapp/ogrenci_ekle.html', bunlariGönder)
+    return render(request,'ogrenciapp/ogrenci_ekle.html', bunlariGonder)
 
-def ogrenci_guncelle(request,id ):
-    student=Ogrenci.objects.get(id=id)
-    form=OgrenciFormu(instance=student)
+def ogrenci_guncelle(request, guncellecekId):
+    # guncellenecek objeyi, yani kisiyi cek. (id'sine göre)
+    ogrenciyiAl=Ogrenci.objects.get(id=guncellecekId)
+    # simdi cektigimiz objeyi forma birakalim.
+    formuAl=OgrenciFormu(instance=ogrenciyiAl)
     if request.method=='POST':
-        form=OgrenciFormu(request.POST,instance=student)
-        if form.is_valid():
-            form.save()
+        formuAl=OgrenciFormu(request.POST, instance=ogrenciyiAl)
+        if formuAl.is_valid():
+            formuAl.save()
             return redirect('listePathi')
-    
-    bunlariGönder = {
-        'form':form
+    bunlariGonder = {
+        'formuBastir':formuAl
     }
-    return render(request,'ogrenciapp/ogrenci_guncelle.html', bunlariGönder)
+    return render(request,'ogrenciapp/ogrenci_guncelle.html', bunlariGonder)
 
-def ogrenci_sil(request,id):
-    student=Ogrenci.objects.get(id=id)
+def ogrenci_sil(request,silinecekId):
+    # silinecek objeyi, yani kisiyi cek. (id'sine göre)
+    ogrenciyiAl=Ogrenci.objects.get(id=silinecekId)
     if request.method=='POST':
-        student.delete()
+        ogrenciyiAl.delete()
         return redirect("listePathi")
-        
-    bunlariGönder = {
-            'student':student
+    bunlariGonder = {
+        'ogrenciyiBastir':ogrenciyiAl
     }
-    return render(request,"ogrenciapp/ogrenci_sil.html", bunlariGönder)
+    return render(request,"ogrenciapp/ogrenci_sil.html", bunlariGonder)
     
-def ogrenci_detay(request, id):        
-    student = Ogrenci.objects.get(id=id)
-    bunlariGönder = {
-        'student': student
+def ogrenci_detay(request, detayId):        
+    ogrenciyiAl = Ogrenci.objects.get(id=detayId)
+    bunlariGonder = {
+        'ogrenciyiBastir': ogrenciyiAl
     }
-    return render(request, 'ogrenciapp/ogrenci_detay.html', bunlariGönder)
+    return render(request, 'ogrenciapp/ogrenci_detay.html', bunlariGonder)
 ####################################################################################################
 #
 #
@@ -300,11 +261,11 @@ from .views import index, ogrenci_listesi, ogrenci_ekle, ogrenci_guncelle, ogren
 
 urlpatterns = [
     path("", index, name="index"),
-    path('liste/', ogrenci_listesi , name='liste'),
-    path('ekle/', ogrenci_ekle, name='ekle'),
-    path('guncelle/<int:id>', ogrenci_guncelle, name='guncelle'),
-    path('sil/<int:id>', ogrenci_sil, name='sil'),
-    path('ogrenci/<int:id>', ogrenci_detay, name="detay"),
+    path('liste/', ogrenci_listesi , name='listePathi'),
+    path('ekle/', ogrenci_ekle, name='eklePathi'),
+    path('guncelle/<int:guncellenecekId>', ogrenci_guncelle, name='guncellePathi'),
+    path('sil/<int:silinecekId>', ogrenci_sil, name='silPathi'),
+    path('ogrenci/<int:detayId>', ogrenci_detay, name="detayPathi"),
 
 ]
 ####################################################################################################
@@ -323,4 +284,30 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("", include('ogrenciapp.urls')),
 ]
+####################################################################################################
+#
+#
+#
+#
+#
+####################################################################################################
+# Burasi ogrenciapp/static/ogrenciapp/style.css bölgesi
+
+h1 {
+  background-color: rgb(128, 27, 116);
+}
+####################################################################################################
+#
+#
+#
+#
+#
+####################################################################################################
+# Burasi ogrenciapp/static/ogrenciapp/zamanlayici.js bölgesi
+
+let element = document.querySelector('.alert');
+
+setTimeout(function () {
+  element.style.display = 'none';
+}, 3000);
 ####################################################################################################
