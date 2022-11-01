@@ -28,6 +28,132 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 #
 #
 ####################################################################################################
+# Burasi kullanicilarapp/models.py bölgesi
+
+from django.db import models
+from django.contrib.auth.models import User
+
+class UserProfile(models.Model):
+    portfolio=models.URLField(blank=True)
+    # URLField sadece url'lerin girilmesine izin verir.
+    profile_pic=models.ImageField(upload_to='profile_pics',blank=True)
+    user=models.OneToOneField(User,on_delete=models.CASCADE)
+    # Django'nun bize sundugu formu yeterli bulmadigimiz icin sekilde baska propertyler ekleyerek kendi tablomuzu olusturduk.
+    # Daha sonra Django'nun kendi formuyla aralarinda one to one iliski kurduk. Böylece index numaralari eslesmis oldu.
+
+    def __str__(self):
+        return self.user.username
+####################################################################################################
+#
+#
+#
+#
+#
+####################################################################################################
+# Burasi kullanicilarapp/admin.py bölgesi
+
+from django.contrib import admin
+from .models import UserProfile
+
+admin.site.register(UserProfile)
+####################################################################################################
+#
+#
+#
+#
+####################################################################################################
+# Burasi kullanicilarapp/forms.py bölgesi
+
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from django import forms
+from .models import UserProfile
+
+class UserForm(UserCreationForm):
+    class Meta():
+        model=User
+        fields=('username','email')
+
+class UserProfileForm(forms.ModelForm):
+    class Meta():
+       model=UserProfile
+       exclude=('user',)
+       # user haricindeki tüm field'leri getir.
+####################################################################################################
+#
+#
+#
+#
+#
+####################################################################################################
+# Burasi kullanicilarapp/views.py bölgesi
+
+from multiprocessing import context
+from django.shortcuts import render, redirect, HttpResponse
+from django.contrib.auth import logout,login
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib import messages
+from kullanicilarapp.forms import UserForm, UserProfileForm
+
+def home(request):
+    return render(request, 'kullanicilarapp/home.html')
+
+def user_logout(request):
+    logout(request)
+    return redirect('home')
+
+def register(request):
+    form_user=UserForm()
+    form_profile=UserProfileForm()
+    if request.method=='POST':
+        form_user=UserForm(request.POST)
+        form_profile=UserProfileForm(request.POST,request.FILES)
+        if form_user.is_valid() and form_profile.is_valid():
+            user=form_user.save()
+            profile=form_profile.save(commit=False) # bunu olustur, ama kaydetme.
+            profile.user=user # benim profile tablomun user alani user tablosunda. 
+            profile.save()
+            login(request,user)
+            messages.success(request,'Register Successfull')
+            return redirect('home')
+    context={
+        'form_profile':form_profile,
+        'form_user':form_user
+    }
+    return render(request,'kullanicilarapp/register.html',context)
+
+def user_login(request):
+    form=AuthenticationForm(request,data=request.POST)
+    if form.is_valid():
+        user=form.get_user()
+        login(request,user)
+        messages.success(request,'login successful')
+        return redirect('home')
+
+    return render(request,'kullanicilarapp/user_login.html',{'form':form})
+####################################################################################################
+#
+#
+#
+#
+####################################################################################################
+# Burasi kullanicilarapp/urls.py bölgesi
+
+from django.urls import path
+from .views import register, user_logout, user_login
+
+urlpatterns = [
+    path('register/', register, name='register' ),
+    path('logout/', user_logout, name='logout' ),
+    path('login/', user_login, name='user_login'),
+]
+####################################################################################################
+#
+#
+#
+#
+#
+####################################################################################################
 # Burasi main/urls.py bölgesi
 
 from django.contrib import admin
@@ -47,29 +173,11 @@ urlpatterns = [
 #
 #
 ####################################################################################################
-# Burasi kullaniciapp/urls.py bölgesi
-
-from django.urls import path
-from .views import register, user_logout, user_login
-
-urlpatterns = [
-    path('register/', register, name='register' ),
-    path('logout/', user_logout, name='logout' ),
-    path('login/', user_login, name='user_login'),
-]
-####################################################################################################
-#
-#
-#
-#
-####################################################################################################
-# Burasi kullaniciapp/templates/kullaniciapp/base.html bölgesi
+# Burasi kullanicilarapp/templates/kullanicilarapp/base.html bölgesi
 
 <!DOCTYPE html>
 {% load static %}
-
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -77,14 +185,13 @@ urlpatterns = [
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
         integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous" />
     {% comment %}
-    <link rel="stylesheet" href=" {% static 'users/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href=" {% static 'kullanicilarapp/css/bootstrap.min.css' %}" />
     {% endcomment %}
-    <link rel="stylesheet" href=" {% static 'users/css/style.css' %}  " />
+    <link rel="stylesheet" href=" {% static 'kullanicilarapp/css/style.css' %}  " />
     <title>Document</title>
 </head>
-
 <body>
-    {% include "users/navbar.html" %}
+    {% include "kullanicilarapp/navbar.html" %}
     <div style="margin-top: 100px; margin-bottom: 100px" class="container">
         {% if messages %}
         {% for message in messages %}
@@ -109,7 +216,6 @@ urlpatterns = [
     </script>
     <script src="{% static 'users/js/timeout.js' %}"></script>
 </body>
-
 </html>
 ####################################################################################################
 #
@@ -121,7 +227,7 @@ urlpatterns = [
 ####################################################################################################
 # Burasi kullaniciapp/templates/kullaniciapp/home.html bölgesi
 
-{% extends 'users/base.html' %} {% block content %}
+{% extends 'kullanicilarapp/base.html' %} {% block content %}
 <h1>Home Page</h1>
 {% if request.user.is_authenticated %}
 <h2>Wellcome {{request.user}}!</h2>
@@ -136,7 +242,7 @@ urlpatterns = [
 ####################################################################################################
 # Burasi kullaniciapp/templates/kullaniciapp/register.html bölgesi
 
-{% extends 'users/base.html' %} {% block content %} {% load crispy_forms_tags %}
+{% extends 'kullanicilarapp/base.html' %} {% block content %} {% load crispy_forms_tags %}
 
 <h2>Registration Form</h2>
 
@@ -160,7 +266,7 @@ urlpatterns = [
 ####################################################################################################
 # Burasi kullaniciapp/templates/kullaniciapp/login.html bölgesi
 
-{% extends 'users/base.html' %} {% block content %} {% load crispy_forms_tags %}
+{% extends 'kullanicilarapp/base.html' %} {% block content %} {% load crispy_forms_tags %}
 <div class="row">
     <div class="col-md-6 offset-md-3">
         <h3>Please Login</h3>
@@ -234,7 +340,7 @@ urlpatterns = [
 #
 #
 ####################################################################################################
-# Burasi kullaniciapp/static/kullaniciapp/js/timeout.js bölgesi
+# Burasi kullanicilarapp/static/kullaniciapp/js/timeout.js bölgesi
 
 let element = document.querySelector(".alert");
 let element2 = document.querySelector("#welcome");
@@ -300,103 +406,3 @@ MEDIA_URL = '/media/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 ####################################################################################################
-#
-#
-#
-#
-####################################################################################################
-# Burasi kullaniciapp/views.py bölgesi
-
-from django.shortcuts import render, redirect, HttpResponse
-from django.contrib import messages
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .forms import UserForm
-# add authenticate and login
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
-
-def home(request):
-    return render(request, 'users/home.html')
-
-def register(request):
-    form = UserForm()
-
-    if request.method == 'POST':
-        # pass in post data when instantiate the form.
-        form = UserForm(request.POST, request.FILES)
-        # if the form is ok with the info filled:
-        if form.is_valid():
-            user = form.save()
-
-            # want user to login right after registered, import login
-            login(request, user)
-            # want to redirect to home page, import redirect
-            return redirect('home')
-
-    context = {
-        'form_user': form
-    }
-
-    return render(request, "users/register.html", context)
-
-def user_logout(request):
-    messages.success(request, "You Logout!")
-    logout(request)
-    return redirect('home')
-
-def user_login(request):
-
-    form = AuthenticationForm(request, data=request.POST)
-
-    if form.is_valid():
-        user = form.get_user()
-        if user:
-            messages.success(request, "Login successfull")
-            login(request, user)
-            return redirect('home')
-    return render(request, 'users/user_login.html', {"form": form})
-####################################################################################################
-#
-#
-#
-#
-#
-####################################################################################################
-TIMOaa
-# Burasi kullaniciapp/models.py bölgesi
-
-from django.db import models
-from django.contrib.auth.models import User
-
-class UserProfile(models.Model):
-    portfolio=models.URLField(blank=True)
-    profile_pic=models.ImageField(upload_to='profile_pics',blank=True)
-    user=models.OneToOneField(User,on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.user.username
-####################################################################################################
-#
-#
-#
-#
-#
-####################################################################################################
-TIMOaa
-# Burasi kullaniciapp/forms.py bölgesi
-
-from django.contrib.auth.models import User
-from .models import UserProfile
-from django import forms
-
-from django.contrib.auth.forms import UserCreationForm
-class UserForm(UserCreationForm):
-    class Meta():
-        model=User
-        fields=('username','email')
-
-class UserProfileForm(forms.ModelForm):
-    class Meta():
-       model=UserProfile
-    #    fields='__all__' 
-       exclude=('user',) 
