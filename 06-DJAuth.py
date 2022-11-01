@@ -8,7 +8,6 @@
 # Kullanicilarimiz artik admin panel'deki Users kisminda.
 
 ####################################################################################################
-TAMAM
 # Burasi main/urls.py bölgesi
 
 from django.contrib import admin
@@ -17,7 +16,7 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('user_example.urls')),
-    path('accounts/', include('django.contrib.auth.urls')), # authentication icin bu satiri ekleriz.
+    path('accounts/', include('django.contrib.auth.urls')),
 ]
 ####################################################################################################
 #
@@ -25,15 +24,18 @@ urlpatterns = [
 #
 #
 ####################################################################################################
-TAMAM
 # Burasi kullaniciapp/urls.py bölgesi
 
 from django.urls import path, include
-from .views import (home, special, register)
+from .views import (
+    home,
+    special,
+    register
+)
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
-    path('', index, name="indexPathi"),
+    path('', home, name="home"),
     path('special/', special, name="special"),
     path('register/', register, name="register"),
     path('password_change/', auth_views.PasswordChangeView.as_view(
@@ -65,7 +67,7 @@ TAMAM
         <h1>
             # database'den username'imizi ceker.
             Hello {{user.username | title}}    
-        </h1>    
+        </h1>
         {% comment %}
         <a href="{% url 'logout' %}">Logout</a>
         {% endcomment %}
@@ -100,7 +102,6 @@ TAMAM
 #
 #
 ####################################################################################################
-TAMAM
 # Burasi kullaniciapp/templates/registration/login.html bölgesi
 
 <!DOCTYPE html>
@@ -125,10 +126,9 @@ TAMAM
 #
 #
 ####################################################################################################
-TAMAM
 # Burasi main/settings.py bölgesi
 
-LOGIN_REDIRECT_URL = "homePathi" # kullanici login oldugunda homePathi'ne yönlendirir.
+LOGIN_REDIRECT_URL = "home" # kullanici login oldugunda home pathine yönlendirir.
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # sifre resetleme isleminde mailimize gönderilen mailin aynisini konsola bastirir.
 
@@ -166,7 +166,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # sifre resetle
 #
 #
 ####################################################################################################
-# Burasi kullaniciapp/templates/registration/password_reset.html bölgesi
+# Burasi kullaniciapp/templates/registration/password_reset_form.html bölgesi
 
 <h1>Password Reset</h1>
 
@@ -221,7 +221,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # sifre resetle
 #
 #
 ####################################################################################################
-TAMAM
 # Burasi kullaniciapp/templates/kullaniciapp/special.html bölgesi
 
 <h1>This is a special page!</h1>
@@ -241,7 +240,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 
-def index(request):
+def home(request):
     return render(request, 'kullaniciapp/index.html')
 
 @login_required
